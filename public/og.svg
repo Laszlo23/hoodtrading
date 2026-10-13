@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#050505"/>
+  <rect x="36" y="36" width="1128" height="558" rx="28" fill="#0c0e08" stroke="#ccff00" stroke-opacity="0.35"/>
+  <circle cx="168" cy="210" r="54" fill="#11180a" stroke="#ccff00" stroke-width="3"/>
+  <text x="168" y="228" text-anchor="middle" font-family="Georgia, serif" font-size="52" fill="#ccff00">H</text>
+  <text x="250" y="198" font-family="Georgia, serif" font-size="78" fill="#f4f6f0">HOOD Desk</text>
+  <text x="252" y="248" font-family="Inter, Helvetica, sans-serif" font-size="22" letter-spacing="4" fill="#ccff00">ROBINHOOD CHAIN</text>
+  <text x="96" y="360" font-family="Georgia, serif" font-size="40" fill="#f4f6f0">Stake HOOD. Hold xHOOD.</text>
+  <text x="96" y="418" font-family="Inter, Helvetica, sans-serif" font-size="24" fill="#c5cbb8">Perps, a USDG vault, and the street. Same night as Night Ledger.</text>
+  <text x="96" y="520" font-family="Inter, Helvetica, sans-serif" font-size="22" fill="#8a9278">hoodtrading.aibusiness.fun</text>
+</svg>
