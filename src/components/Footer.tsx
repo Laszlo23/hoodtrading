@@ -3,9 +3,11 @@ import { useStore } from "../state/store";
 import type { Page } from "../types";
 
 const DESK: { id: Page; label: string }[] = [
+  { id: "intro", label: "Start" },
   { id: "perps", label: "Trade" },
-  { id: "vault", label: "Vault" },
   { id: "stake", label: "Stake" },
+  { id: "vault", label: "Vault" },
+  { id: "network", label: "Network" },
   { id: "rewards", label: "Rewards" },
   { id: "board", label: "Board" },
   { id: "blog", label: "Notes" },

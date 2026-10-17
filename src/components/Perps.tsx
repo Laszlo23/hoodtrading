@@ -3,6 +3,7 @@ import { MARKETS } from "../data/markets";
 import { formatCompact, formatPct, formatPrice, formatUsd, fundingCountdown } from "../lib/format";
 import { getChange, getLast, getMark } from "../lib/series";
 import { useStore } from "../state/store";
+import { armChapter } from "../state/chapter";
 import { Book } from "./Book";
 import { ChartPanel } from "./ChartPanel";
 import { Dock } from "./Dock";
@@ -38,7 +39,7 @@ export function Perps() {
 
   return (
     <>
-    <StoryRail compact />
+    <StoryRail compact onOpen={(id) => { armChapter(id); store.setPage("intro"); }} />
     <div className="perps">
       <div className="subhead">
         <div className="pair-wrap" ref={box}>

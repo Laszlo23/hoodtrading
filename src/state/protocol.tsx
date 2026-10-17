@@ -2,13 +2,16 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import {
   acceptReferral,
   accrue,
+  canFlash,
   claimPoints,
   creditVolume,
   depositVault,
+  flashPixel,
   freshLedger,
   rankedBoard,
   stakeHood,
   unstakeHood,
+  wearPixel,
   withdrawVault,
   type BoardRow,
   type Ledger,
@@ -25,6 +28,8 @@ interface ProtocolValue {
   deposit: (usdg: number) => void;
   withdraw: (shares: number) => void;
   claim: () => void;
+  wear: (on: boolean) => void;
+  flash: () => void;
   useReferral: (code: string) => void;
 }
 
@@ -81,6 +86,7 @@ export function ProtocolProvider({ children }: { children: ReactNode }) {
       volume: ledger.creditedVolume,
       points: ledger.points,
       referral: ledger.referral,
+      wearing: ledger.wearing,
       you: true,
     };
     return {
@@ -136,6 +142,22 @@ export function ProtocolProvider({ children }: { children: ReactNode }) {
           store.toast("Rewards claimed", "Points converted into HOOD.", "ok");
         } catch (error) {
           store.toast("Rewards", error instanceof Error ? error.message : "Claim failed", "bad");
+        }
+      },
+      wear: (on: boolean) => {
+        setLedger(wearPixel(ledger, on));
+        store.toast(on ? "Pixel on" : "Pixel off", on ? "The hood is on your desk." : "The plain mark is back.", "ok");
+      },
+      flash: () => {
+        if (!canFlash(ledger)) {
+          store.toast("Flash", ledger.wearing ? "Already flashed today." : "Wear the pixel first.", "info");
+          return;
+        }
+        try {
+          setLedger(flashPixel(ledger));
+          store.toast("Flashed", "25 points landed on the desk.", "ok");
+        } catch (error) {
+          store.toast("Flash", error instanceof Error ? error.message : "Flash failed", "bad");
         }
       },
       useReferral: (code: string) => {

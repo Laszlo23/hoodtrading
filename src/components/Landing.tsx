@@ -5,7 +5,10 @@ import { getChange, getLast } from "../lib/series";
 import { STAKE_APR, VAULT_APR } from "../sdk/config";
 import { useProtocol } from "../state/protocol";
 import { useStore } from "../state/store";
+import { armChapter } from "../state/chapter";
+import { armNote } from "../state/note";
 import { Footer } from "./Footer";
+import { PixelCard } from "./PixelCard";
 import { Projects } from "./Projects";
 import { ShareCard } from "./ShareCard";
 import { StoryRail } from "./StoryRail";
@@ -34,15 +37,15 @@ export function Landing() {
       </div>
 
       <section className="hero-card">
-        <div className="logo-mark big" aria-hidden>H</div>
+        <PixelCard hero />
         <div>
-          <p className="kicker">Robinhood Chain</p>
+          <p className="kicker">aibusiness.fun</p>
           <h1>HOOD Desk</h1>
           <p className="lede wide">
-            A perps book, a USDG vault, and xHOOD. Night Ledger is the coin’s book.
-            DogiHood is the dogs. Hood Street is the membership. This page is the desk.
+            aibusiness.fun is the night. Aura OS sits at the root: you own a company, and AI employees do the work.
+            The hood lives on the subdomains. This page is the exchange.
           </p>
-          <p className="fine">Your wallet can sign a swap on the street. Orders on this book stay in the browser until a perps contract is set.</p>
+          <p className="fine">Night Ledger keeps the coin. DogiHood keeps the dogs. Hood Street is the membership. Start with the story, then open a desk.</p>
           <div className="live-row">
             <span><i /> Online</span>
             <span>Community desk</span>
@@ -51,21 +54,28 @@ export function Landing() {
         </div>
       </section>
 
+      <div className="hero-actions">
+        <button className="btn cyan lg" type="button" onClick={() => store.setPage("intro")}>Start here</button>
+        <button className="text-link" type="button" onClick={() => store.setPage("perps")}>Trade perps</button>
+      </div>
+
+      <StoryRail onOpen={(id) => { armChapter(id); store.setPage("intro"); }} />
+
       <section className="lanes">
         <button type="button" onClick={() => store.setPage("perps")}>
           <span>The book</span>
           <b>Perps</b>
           <p>ETH and tokenized stocks, quoted in USDG. Chart, book, and ticket on one screen.</p>
         </button>
-        <button type="button" onClick={() => store.setPage("vault")}>
-          <span>The vault</span>
-          <b>USDG shares</b>
-          <p>A deposit leaves the trading balance. Shares accrue {(VAULT_APR * 100).toFixed(1)}% on their own.</p>
-        </button>
         <button type="button" onClick={() => store.setPage("stake")}>
           <span>The receipt</span>
           <b>xHOOD</b>
           <p>Stake HOOD. The pool mints xHOOD at the live rate. Rewards stay in the pool.</p>
+        </button>
+        <button type="button" onClick={() => store.setPage("vault")}>
+          <span>The vault</span>
+          <b>USDG shares</b>
+          <p>A deposit leaves the trading balance. Shares accrue {(VAULT_APR * 100).toFixed(1)}% on their own.</p>
         </button>
         <button type="button" onClick={() => store.setPage("rewards")}>
           <span>The board</span>
@@ -75,7 +85,7 @@ export function Landing() {
       </section>
 
       <div className="hero-actions">
-        <button className="btn cyan lg" type="button" onClick={() => store.setPage("perps")}>Trade perps</button>
+        <button className="text-link" type="button" onClick={() => store.setPage("perps")}>Trade perps</button>
         <button className="text-link" type="button" onClick={() => store.setPage("stake")}>Stake HOOD</button>
         <button className="text-link" type="button" onClick={() => store.setPage("vault")}>The vault</button>
         <button className="text-link" type="button" onClick={() => store.setPage("blog")}>Notes</button>
@@ -127,8 +137,11 @@ export function Landing() {
         })}
       </div>
 
-      <StoryRail />
       <Projects />
+      <div className="hero-actions">
+        <button className="btn cyan lg" type="button" onClick={() => store.setPage("network")}>All subdomains</button>
+        <button className="text-link" type="button" onClick={() => store.setPage("blog")}>Notes</button>
+      </div>
 
       <section className="site-split">
         <div>
@@ -137,8 +150,8 @@ export function Landing() {
         </div>
         <div className="post-grid">
           {POSTS.slice(0, 3).map((post) => (
-            <button key={post.slug} type="button" className="post-card" onClick={() => store.setPage("blog")}>
-              <span>{post.kicker}</span>
+            <button key={post.slug} type="button" className="post-card" onClick={() => { armNote(post.slug); store.setPage("blog"); }}>
+              <span>{post.kicker} · {post.date}</span>
               <b>{post.title}</b>
               <p>{post.excerpt}</p>
               <em>Ref {post.referral}</em>

@@ -6,8 +6,10 @@ import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { ChainPage } from "./components/ChainPage";
 import { StakePage, VaultPage } from "./components/EarnPages";
+import { IntroPage } from "./components/IntroPage";
 import { Landing } from "./components/Landing";
 import { MarketsPage } from "./components/MarketsPage";
+import { NetworkPage } from "./components/NetworkPage";
 import { Perps } from "./components/Perps";
 import { PortfolioPage } from "./components/PortfolioPage";
 import { BoardPage, RewardsPage } from "./components/RewardsBoard";
@@ -33,15 +35,26 @@ export function App() {
   }, [store]);
 
   const desk = store.page === "perps";
+  const blank = store.page === "network";
+
+  if (blank) {
+    return (
+      <div className="blank">
+        <NetworkPage />
+      </div>
+    );
+  }
 
   return (
     <div className={desk ? "app" : "shell"}>
-      <Header />
-      <main>
-        <PageSwitch page={store.page} />
-        {desk || store.page === "home" ? null : <Footer />}
-      </main>
-      {desk ? <Footer compact /> : null}
+      <div className="frame">
+        <Header />
+        <main>
+          <PageSwitch page={store.page} />
+          {desk || store.page === "home" ? null : <Footer />}
+        </main>
+        {desk ? <Footer compact /> : null}
+      </div>
       {store.whatsNew && store.page === "perps" ? <WhatsNew /> : null}
       {store.draft ? <Confirm /> : null}
       <AgentPanel />
@@ -61,6 +74,8 @@ function PageSwitch({ page }: { page: Page }) {
   switch (page) {
     case "home":
       return <Landing />;
+    case "intro":
+      return <IntroPage />;
     case "perps":
       return <Perps />;
     case "markets":
@@ -79,6 +94,8 @@ function PageSwitch({ page }: { page: Page }) {
       return <BoardPage />;
     case "blog":
       return <BlogPage />;
+    case "network":
+      return <NetworkPage />;
     default: {
       const unreachable: never = page;
       return unreachable;

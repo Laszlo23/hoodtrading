@@ -4,19 +4,23 @@ import { PROJECTS } from "../data/projects";
 import { explorerAddress } from "../lib/chain";
 import { formatCompact, shortAddr } from "../lib/format";
 import { useStore } from "../state/store";
+import { useProtocol } from "../state/protocol";
 import type { Page } from "../types";
+import { PixelHood } from "./PixelHood";
 import { ShareButton } from "./ShareCard";
 
 const LINKS: { id: Page; label: string }[] = [
+  { id: "intro", label: "Start" },
   { id: "perps", label: "Trade" },
-  { id: "vault", label: "Vault" },
   { id: "stake", label: "Stake" },
+  { id: "vault", label: "Vault" },
   { id: "board", label: "Board" },
   { id: "blog", label: "Notes" },
 ];
 
 const DESK: { id: Page; label: string }[] = [
   { id: "home", label: "Home" },
+  { id: "network", label: "Network" },
   { id: "rewards", label: "Rewards" },
   { id: "markets", label: "Markets" },
   { id: "portfolio", label: "Portfolio" },
@@ -25,6 +29,7 @@ const DESK: { id: Page; label: string }[] = [
 
 export function Header() {
   const store = useStore();
+  const { ledger } = useProtocol();
   const [street, setStreet] = useState(false);
   const [desk, setDesk] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -57,7 +62,9 @@ export function Header() {
     <header className="hood-bar">
       <div className="hood-pill">
         <button className="logo" type="button" onClick={() => go("home")}>
-          <span className="logo-mark" aria-hidden>H</span>
+          <span className="logo-mark" aria-hidden>
+            {ledger.wearing ? <PixelHood /> : "H"}
+          </span>
           <span className="logo-words">
             <b>HOOD</b>
             <small>Desk</small>

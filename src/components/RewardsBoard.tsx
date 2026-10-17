@@ -1,5 +1,7 @@
 import { formatCompact, formatUsd } from "../lib/format";
 import { useProtocol } from "../state/protocol";
+import { PixelCard } from "./PixelCard";
+import { PixelHood } from "./PixelHood";
 import { ShareCard } from "./ShareCard";
 
 export function RewardsPage() {
@@ -56,6 +58,7 @@ export function RewardsPage() {
         Stake weight, vault deposits, filled perps, and a referral each add points. One hundred points claim one HOOD,
         which you can stake into xHOOD.
       </p>
+      <PixelCard />
     </div>
   );
 }
@@ -80,7 +83,10 @@ export function BoardPage() {
             {board.map((row, index) => (
               <tr key={row.id} className={row.you ? "you" : ""}>
                 <td>{index + 1}</td>
-                <td>{row.name}</td>
+                <td>
+                  {row.you && row.wearing ? <PixelHood className="board" /> : null}
+                  {row.name}
+                </td>
                 <td>{formatCompact(row.stake, false)}</td>
                 <td>{formatCompact(row.vault)}</td>
                 <td>{formatCompact(row.volume)}</td>

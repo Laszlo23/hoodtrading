@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { POSTS } from "../data/blog";
 import { Projects } from "./Projects";
+import { takeNote } from "../state/note";
 import { useProtocol } from "../state/protocol";
 import { useStore } from "../state/store";
 
 export function BlogPage() {
   const store = useStore();
   const { useReferral } = useProtocol();
-  const [slug, setSlug] = useState<string | null>(null);
+  const [slug, setSlug] = useState(takeNote);
   const post = POSTS.find((item) => item.slug === slug) ?? null;
 
   if (post) {
@@ -17,6 +18,13 @@ export function BlogPage() {
         <p className="kicker">{post.kicker} · {post.date}</p>
         <h1 className="page-title">{post.title}</h1>
         {post.body.map((paragraph) => <p key={paragraph.slice(0, 24)} className="lede">{paragraph}</p>)}
+        {post.links && post.links.length > 0 ? (
+          <div className="note-links">
+            {post.links.map((link) => (
+              <a key={link.href} href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
+            ))}
+          </div>
+        ) : null}
         <div className="reward-row">
           <button className="btn cyan" type="button" onClick={() => useReferral(post.referral)}>
             Use {post.referral}

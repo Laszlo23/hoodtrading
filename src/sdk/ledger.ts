@@ -17,6 +17,9 @@ export interface Ledger {
   referral: string;
   referredBy: string | null;
   referralCredits: number;
+  wearing: boolean;
+  lastFlashDay: string | null;
+  flashes: number;
   lastAccrual: number;
 }
 
@@ -36,6 +39,9 @@ export function freshLedger(now = Date.now()): Ledger {
     referral: makeCode(),
     referredBy: null,
     referralCredits: 0,
+    wearing: false,
+    lastFlashDay: null,
+    flashes: 0,
     lastAccrual: now,
   };
 }
@@ -136,6 +142,31 @@ export function creditVolume(ledger: Ledger, volume: number): Ledger {
   };
 }
 
+export const FLASH_POINTS = 25;
+
+export function dayKey(now = Date.now()): string {
+  return new Date(now).toISOString().slice(0, 10);
+}
+
+export function canFlash(ledger: Ledger, now = Date.now()): boolean {
+  return ledger.wearing && ledger.lastFlashDay !== dayKey(now);
+}
+
+export function wearPixel(ledger: Ledger, wearing: boolean): Ledger {
+  return { ...ledger, wearing };
+}
+
+export function flashPixel(ledger: Ledger, now = Date.now()): Ledger {
+  if (!ledger.wearing) throw new Error("Wear the pixel first");
+  if (ledger.lastFlashDay === dayKey(now)) throw new Error("Already flashed today");
+  return {
+    ...ledger,
+    lastFlashDay: dayKey(now),
+    flashes: ledger.flashes + 1,
+    points: ledger.points + FLASH_POINTS,
+  };
+}
+
 export function acceptReferral(ledger: Ledger, code: string): Ledger {
   if (!code || ledger.referredBy || code === ledger.referral) return ledger;
   return {
@@ -154,6 +185,7 @@ export interface BoardRow {
   volume: number;
   points: number;
   referral: string;
+  wearing?: boolean;
   you?: boolean;
 }
 
