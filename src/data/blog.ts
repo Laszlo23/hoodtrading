@@ -16,6 +16,26 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: "media-rooms",
+    title: "The rooms are on",
+    kicker: "Media",
+    date: "22 Oct 2026",
+    excerpt: "StreetHood Media is live. Hood Morning sits tomorrow at 15:00 UTC. The last morning, on 13 Oct, held 501 people.",
+    referral: "ROOMS",
+    links: [
+      { label: "Live room", href: "https://x.com/i/spaces/1yxBePgOWAkJN" },
+      { label: "Hood Morning, 23 Oct", href: "https://x.com/i/spaces/1pKkOXlmLZrKj" },
+      { label: "Hood Morning, 13 Oct", href: "https://x.com/i/spaces/1DxLdZLkDAwxm" },
+      { label: "HoodStreet", href: "https://hoodstreet.capital" },
+    ],
+    body: [
+      "This note is a reading of the HoodStreet Media rooms, taken on 22 October 2026. StreetHood Media 24/7 was still open. The host on the room card is CashPixel, @RealCashpig. It started at 11:32 UTC. The title is Robinhood NFTs, memes, and news, and it names $CANNACAT. Co-hosts on that card were Scratch, Lady_Blue, Katy Caterpillar, Jeffie, Amazing G, and KRONIK CRUZ. A price called out in the chat is someone talking. It is not a quote from this desk.",
+      "Hood Morning is scheduled for 23 October at 15:00 UTC. The host is Roaring Piggy, @RoaringPiggy, under HoodStreet Media. The title names Robinhood NFTs, Cash Grab, and a shill. The title is the bill for the hour. This desk does not check the mint and does not vouch for it.",
+      "The morning before that ran on 13 October, 15:00 to 17:32 UTC, two hours and thirty-two minutes, with 501 people in the room. Same host. The title that day was Robinhood NFTs, news, and talk. Co-hosts on the card were Glitchy and Spinna.",
+      "HoodStreet, on its own page, is the membership around these rooms. CCFF00 is the founding collection: 10,000 squares on Robinhood Chain, each an ERC-721 with an ERC-6551 wallet. My Neon opens that wallet. Bringing an agent is marked experimental beta, and the member still signs. The code on this note is ROOMS. A desk that arrives with it picks up 50 points.",
+    ],
+  },
+  {
     slug: "mint-tape",
     title: "The mint tape, read once",
     kicker: "Mints",
@@ -105,7 +125,7 @@ export const POSTS: Post[] = [
     body: [
       "HOOD locked in staking is not a wrapped balance you have to claim by hand. The pool mints xHOOD at the current exchange rate, and emissions stay inside the pool.",
       "If the rate is 1.00, 100 HOOD mints 100 xHOOD. After rewards accrue, that same 100 xHOOD unwraps to more than 100 HOOD. Unstaking burns the receipt and returns the claim.",
-      "The desk agent can quote the live rate. The SDK reads it the same way the stake page does, and an on-chain staking address takes over the moment VITE_STAKING_ADDRESS is set.",
+      "The desk agent can quote the live rate. The stake page reads the same desk pool, and xHOOD is the receipt in this browser.",
     ],
   },
   {

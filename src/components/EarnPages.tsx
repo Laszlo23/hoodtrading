@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { formatUsd } from "../lib/format";
-import { STAKE_APR, publicConfig } from "../sdk/config";
+import { STAKE_APR, VAULT_APR } from "../sdk/config";
 import { useProtocol } from "../state/protocol";
+import { useStore } from "../state/store";
+
+function amountText(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "0";
+  return value.toLocaleString("en-US", { maximumFractionDigits: 6, useGrouping: false });
+}
 
 export function StakePage() {
   const { ledger, stake, unstake } = useProtocol();
@@ -9,6 +15,7 @@ export function StakePage() {
   const [mode, setMode] = useState<"stake" | "unstake">("stake");
   const parsed = Number(amount);
   const valid = Number.isFinite(parsed) && parsed > 0;
+  const available = mode === "stake" ? ledger.hood : ledger.xHood;
   const receive = mode === "stake" ? (valid ? parsed / ledger.rate : 0) : valid ? parsed * ledger.rate : 0;
   const rewards = Math.max(0, ledger.staked - ledger.principal);
 
@@ -33,9 +40,8 @@ export function StakePage() {
         onSubmit={(event) => {
           event.preventDefault();
           if (!valid) return;
-          if (mode === "stake") stake(parsed);
-          else unstake(parsed);
-          setAmount("");
+          const ok = mode === "stake" ? stake(parsed) : unstake(parsed);
+          if (ok) setAmount("");
         }}
       >
         <div className="sides">
@@ -47,14 +53,16 @@ export function StakePage() {
           <input inputMode="decimal" value={amount} placeholder="0.00" onChange={(event) => setAmount(event.target.value)} />
         </label>
         <div className="avail">
+          <span>Available {amountText(available)} {mode === "stake" ? "HOOD" : "xHOOD"}</span>
+          <button className="text-btn" type="button" onClick={() => setAmount(amountText(available))}>Max</button>
+        </div>
+        <div className="avail">
           <span>You receive</span>
           <b>{receive.toLocaleString("en-US", { maximumFractionDigits: 4 })} {mode === "stake" ? "xHOOD" : "HOOD"}</b>
         </div>
-        <button className="submit buy" type="submit">{mode === "stake" ? "Stake HOOD" : "Unstake xHOOD"}</button>
+        <button className="submit buy" type="submit" disabled={!valid}>{mode === "stake" ? "Stake HOOD" : "Unstake xHOOD"}</button>
         <p className="fine">
-          {publicConfig.staking
-            ? `On-chain staking is configured at ${publicConfig.staking}.`
-            : "The Hood SDK settles this pool in the desk ledger until VITE_STAKING_ADDRESS is set. The API key never reaches the browser."}
+          This pool is open on the desk. Stake HOOD and the receipt is xHOOD, saved in this browser. Rewards stay in the pool.
         </p>
       </form>
     </div>
@@ -63,10 +71,12 @@ export function StakePage() {
 
 export function VaultPage() {
   const { ledger, deposit, withdraw } = useProtocol();
+  const store = useStore();
   const [amount, setAmount] = useState("");
   const [mode, setMode] = useState<"deposit" | "withdraw">("deposit");
   const parsed = Number(amount);
   const valid = Number.isFinite(parsed) && parsed > 0;
+  const available = mode === "deposit" ? Math.max(0, store.account.balance) : ledger.vaultShares;
   const preview = mode === "deposit"
     ? valid ? parsed / ledger.vaultRate : 0
     : valid ? parsed * ledger.vaultRate : 0;
@@ -79,7 +89,7 @@ export function VaultPage() {
         <h1>USDG shares.</h1>
         <p>
           A deposit leaves your perps balance and becomes vault shares. The share price accrues on its own,
-          apart from open positions.
+          apart from open positions. APR is {(VAULT_APR * 100).toFixed(1)}%.
         </p>
         <div className="dash">
           <article><span>Share price</span><b>{formatUsd(ledger.vaultRate, 4)}</b></article>
@@ -93,9 +103,8 @@ export function VaultPage() {
         onSubmit={(event) => {
           event.preventDefault();
           if (!valid) return;
-          if (mode === "deposit") deposit(parsed);
-          else withdraw(parsed);
-          setAmount("");
+          const ok = mode === "deposit" ? deposit(parsed) : withdraw(parsed);
+          if (ok) setAmount("");
         }}
       >
         <div className="sides">
@@ -107,14 +116,16 @@ export function VaultPage() {
           <input inputMode="decimal" value={amount} placeholder="0.00" onChange={(event) => setAmount(event.target.value)} />
         </label>
         <div className="avail">
+          <span>Available {mode === "deposit" ? formatUsd(available, 2) : amountText(available)}</span>
+          <button className="text-btn" type="button" onClick={() => setAmount(amountText(available))}>Max</button>
+        </div>
+        <div className="avail">
           <span>{mode === "deposit" ? "Shares minted" : "USDG out"}</span>
           <b>{mode === "deposit" ? preview.toLocaleString("en-US", { maximumFractionDigits: 4 }) : formatUsd(preview, 2)}</b>
         </div>
-        <button className="submit buy" type="submit">{mode === "deposit" ? "Deposit USDG" : "Withdraw shares"}</button>
+        <button className="submit buy" type="submit" disabled={!valid}>{mode === "deposit" ? "Deposit USDG" : "Withdraw shares"}</button>
         <p className="fine">
-          {publicConfig.vault
-            ? `Vault contract ${publicConfig.vault}.`
-            : "Share accounting runs through the SDK ledger until VITE_VAULT_ADDRESS is set."}
+          This vault is open on the desk. Shares stay in this browser, and the USDG comes out of your perps balance.
         </p>
       </form>
     </div>

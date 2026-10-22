@@ -8,9 +8,12 @@ import { useStore } from "../state/store";
 import { armChapter } from "../state/chapter";
 import { armNote } from "../state/note";
 import { Footer } from "./Footer";
+import { FriendsTape } from "./FriendsBoard";
+import { MintBoard } from "./MintBoard";
 import { PixelCard } from "./PixelCard";
 import { Projects } from "./Projects";
 import { ShareCard } from "./ShareCard";
+import { SpacesTape } from "./SpacesTape";
 import { StoryRail } from "./StoryRail";
 
 function isoWeek(date: Date): number {
@@ -33,7 +36,7 @@ export function Landing() {
     <div className="site">
       <div className="week-banner">
         <span>Week of {year} · W{week}</span>
-        Stake HOOD and the pool mints xHOOD. The rate is the receipt.
+        StreetHood Media is on. Robinhood NFTs, memes, and news. Hood Morning is next, 23 Oct at 15:00 UTC.
       </div>
 
       <section className="hero-card">
@@ -49,7 +52,7 @@ export function Landing() {
           <div className="live-row">
             <span><i /> Online</span>
             <span>Community desk</span>
-            <span>Live</span>
+            <span>Media on</span>
           </div>
         </div>
       </section>
@@ -58,6 +61,9 @@ export function Landing() {
         <button className="btn cyan lg" type="button" onClick={() => store.setPage("intro")}>Start here</button>
         <button className="text-link" type="button" onClick={() => store.setPage("perps")}>Trade perps</button>
       </div>
+
+      <SpacesTape />
+      <MintBoard />
 
       <StoryRail onOpen={(id) => { armChapter(id); store.setPage("intro"); }} />
 
@@ -136,6 +142,8 @@ export function Landing() {
           );
         })}
       </div>
+
+      <FriendsTape />
 
       <Projects />
       <div className="hero-actions">

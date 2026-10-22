@@ -35,7 +35,9 @@ export function RewardsPage() {
         </article>
       </div>
       <div className="reward-row">
-        <button className="btn cyan" type="button" onClick={claim}>Claim {hoodReady} HOOD</button>
+        <button className="btn cyan" type="button" disabled={hoodReady < 1} onClick={claim}>
+          {hoodReady < 1 ? "Need 100 points" : `Claim ${hoodReady} HOOD`}
+        </button>
       </div>
       <ShareCard />
       <form

@@ -1,4 +1,4 @@
-export type Page = "home" | "intro" | "perps" | "markets" | "portfolio" | "chain" | "vault" | "stake" | "rewards" | "board" | "blog" | "network";
+export type Page = "home" | "intro" | "perps" | "markets" | "portfolio" | "chain" | "vault" | "stake" | "rewards" | "board" | "blog" | "network" | "friends" | "bot";
 
 export type MarketKind = "stock" | "crypto" | "chain";
 

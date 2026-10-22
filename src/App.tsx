@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { MAKER_FEE, MARKET_MAP, TAKER_FEE } from "./data/markets";
 import { AgentPanel } from "./components/AgentPanel";
 import { BlogPage } from "./components/BlogPage";
+import { BotPage } from "./components/BotPage";
 import { Footer } from "./components/Footer";
+import { FriendsPage } from "./components/FriendsBoard";
 import { Header } from "./components/Header";
 import { ChainPage } from "./components/ChainPage";
 import { StakePage, VaultPage } from "./components/EarnPages";
@@ -96,6 +98,10 @@ function PageSwitch({ page }: { page: Page }) {
       return <BlogPage />;
     case "network":
       return <NetworkPage />;
+    case "friends":
+      return <FriendsPage />;
+    case "bot":
+      return <BotPage />;
     default: {
       const unreachable: never = page;
       return unreachable;

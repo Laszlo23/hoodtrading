@@ -8,9 +8,11 @@ const DESK: { id: Page; label: string }[] = [
   { id: "stake", label: "Stake" },
   { id: "vault", label: "Vault" },
   { id: "network", label: "Network" },
+  { id: "friends", label: "Keys" },
   { id: "rewards", label: "Rewards" },
   { id: "board", label: "Board" },
   { id: "blog", label: "Notes" },
+  { id: "bot", label: "Bot" },
 ];
 
 export function Footer({ compact = false }: { compact?: boolean }) {
@@ -51,6 +53,7 @@ export function Footer({ compact = false }: { compact?: boolean }) {
         </nav>
         <nav aria-label="Find the street">
           <p className="kicker">Find us</p>
+          <a href="https://x.com/i/spaces/1yxBePgOWAkJN" target="_blank" rel="noreferrer">Media room</a>
           <a href="https://discord.gg/hoodstreet" target="_blank" rel="noreferrer">Discord</a>
           <a href="https://x.com/bihary41418" target="_blank" rel="noreferrer">X</a>
           <a href="https://doghood.aibusiness.fun/" target="_blank" rel="noreferrer">Night Ledger</a>

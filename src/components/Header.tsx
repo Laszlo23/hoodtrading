@@ -21,10 +21,12 @@ const LINKS: { id: Page; label: string }[] = [
 const DESK: { id: Page; label: string }[] = [
   { id: "home", label: "Home" },
   { id: "network", label: "Network" },
+  { id: "friends", label: "Keys" },
   { id: "rewards", label: "Rewards" },
   { id: "markets", label: "Markets" },
   { id: "portfolio", label: "Portfolio" },
   { id: "chain", label: "Chain" },
+  { id: "bot", label: "Bot" },
 ];
 
 export function Header() {

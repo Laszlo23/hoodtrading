@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   acceptReferral,
   accrue,
@@ -23,11 +23,11 @@ const KEY = "hood-protocol-v1";
 interface ProtocolValue {
   ledger: Ledger;
   board: BoardRow[];
-  stake: (amount: number) => void;
-  unstake: (xAmount: number) => void;
-  deposit: (usdg: number) => void;
-  withdraw: (shares: number) => void;
-  claim: () => void;
+  stake: (amount: number) => boolean;
+  unstake: (xAmount: number) => boolean;
+  deposit: (usdg: number) => boolean;
+  withdraw: (shares: number) => boolean;
+  claim: () => boolean;
   wear: (on: boolean) => void;
   flash: () => void;
   useReferral: (code: string) => void;
@@ -51,6 +51,8 @@ function loadLedger(): Ledger {
 export function ProtocolProvider({ children }: { children: ReactNode }) {
   const store = useStore();
   const [ledger, setLedger] = useState<Ledger>(loadLedger);
+  const ledgerRef = useRef(ledger);
+  ledgerRef.current = ledger;
 
   useEffect(() => {
     localStorage.setItem(KEY, JSON.stringify(ledger));
@@ -58,7 +60,11 @@ export function ProtocolProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setLedger((current) => accrue(current));
+      setLedger((current) => {
+        const next = accrue(current);
+        ledgerRef.current = next;
+        return next;
+      });
     }, 1000);
     return () => window.clearInterval(timer);
   }, []);
@@ -77,6 +83,28 @@ export function ProtocolProvider({ children }: { children: ReactNode }) {
     setLedger((current) => creditVolume(current, volume));
   }, [store.account.fills]);
 
+  const commit = (apply: (current: Ledger) => Ledger): boolean => {
+    let preview: Ledger;
+    try {
+      preview = apply(ledgerRef.current);
+    } catch (error) {
+      store.toast("Desk", error instanceof Error ? error.message : "Could not update the desk", "bad");
+      return false;
+    }
+    ledgerRef.current = preview;
+    setLedger((current) => {
+      try {
+        const next = apply(current);
+        ledgerRef.current = next;
+        return next;
+      } catch {
+        ledgerRef.current = current;
+        return current;
+      }
+    });
+    return true;
+  };
+
   const value = useMemo<ProtocolValue>(() => {
     const you: BoardRow = {
       id: "you",
@@ -93,81 +121,110 @@ export function ProtocolProvider({ children }: { children: ReactNode }) {
       ledger,
       board: rankedBoard(you),
       stake: (amount: number) => {
-        try {
-          setLedger(stakeHood(ledger, amount));
-          store.toast("Staked", `${amount.toLocaleString("en-US")} HOOD minted xHOOD.`, "ok");
-        } catch (error) {
-          store.toast("Stake", error instanceof Error ? error.message : "Stake failed", "bad");
-        }
+        const ok = commit((current) => stakeHood(current, amount));
+        if (ok) store.toast("Staked", `${amount.toLocaleString("en-US")} HOOD minted xHOOD.`, "ok");
+        return ok;
       },
       unstake: (xAmount: number) => {
-        try {
-          setLedger(unstakeHood(ledger, xAmount));
-          store.toast("Unstaked", "xHOOD burned for HOOD at the pool rate.", "ok");
-        } catch (error) {
-          store.toast("Unstake", error instanceof Error ? error.message : "Unstake failed", "bad");
-        }
+        const ok = commit((current) => unstakeHood(current, xAmount));
+        if (ok) store.toast("Unstaked", "xHOOD burned for HOOD at the pool rate.", "ok");
+        return ok;
       },
       deposit: (usdg: number) => {
         const error = store.transferUsdg(-usdg);
         if (error) {
           store.toast("Vault", error, "bad");
-          return;
+          return false;
         }
         try {
-          setLedger(depositVault(ledger, usdg));
-          store.toast("Deposited", `${usdg.toLocaleString("en-US")} USDG moved into the vault.`, "ok");
+          depositVault(ledgerRef.current, usdg);
         } catch (caught) {
           store.transferUsdg(usdg);
           store.toast("Vault", caught instanceof Error ? caught.message : "Deposit failed", "bad");
+          return false;
         }
+        ledgerRef.current = depositVault(ledgerRef.current, usdg);
+        let refunded = false;
+        setLedger((current) => {
+          try {
+            const next = depositVault(current, usdg);
+            ledgerRef.current = next;
+            return next;
+          } catch {
+            ledgerRef.current = current;
+            if (!refunded) {
+              refunded = true;
+              store.transferUsdg(usdg);
+            }
+            return current;
+          }
+        });
+        store.toast("Deposited", `${usdg.toLocaleString("en-US")} USDG moved into the vault.`, "ok");
+        return true;
       },
       withdraw: (shares: number) => {
+        let usdg = 0;
         try {
-          const result = withdrawVault(ledger, shares);
-          const error = store.transferUsdg(result.usdg);
-          if (error) {
-            store.toast("Vault", error, "bad");
-            return;
-          }
-          setLedger(result.ledger);
-          store.toast("Withdrawn", "Vault shares burned for USDG.", "ok");
+          usdg = withdrawVault(ledgerRef.current, shares).usdg;
         } catch (caught) {
           store.toast("Vault", caught instanceof Error ? caught.message : "Withdraw failed", "bad");
+          return false;
         }
+        const error = store.transferUsdg(usdg);
+        if (error) {
+          store.toast("Vault", error, "bad");
+          return false;
+        }
+        ledgerRef.current = withdrawVault(ledgerRef.current, shares).ledger;
+        let returned = false;
+        setLedger((current) => {
+          try {
+            const next = withdrawVault(current, shares);
+            ledgerRef.current = next.ledger;
+            return next.ledger;
+          } catch {
+            ledgerRef.current = current;
+            if (!returned) {
+              returned = true;
+              store.transferUsdg(-usdg);
+            }
+            return current;
+          }
+        });
+        store.toast("Withdrawn", "Vault shares burned for USDG.", "ok");
+        return true;
       },
       claim: () => {
-        try {
-          setLedger(claimPoints(ledger));
-          store.toast("Rewards claimed", "Points converted into HOOD.", "ok");
-        } catch (error) {
-          store.toast("Rewards", error instanceof Error ? error.message : "Claim failed", "bad");
-        }
+        const ok = commit((current) => claimPoints(current));
+        if (ok) store.toast("Rewards claimed", "Points converted into HOOD.", "ok");
+        return ok;
       },
       wear: (on: boolean) => {
-        setLedger(wearPixel(ledger, on));
-        store.toast(on ? "Pixel on" : "Pixel off", on ? "The hood is on your desk." : "The plain mark is back.", "ok");
+        const ok = commit((current) => wearPixel(current, on));
+        if (ok) store.toast(on ? "Pixel on" : "Pixel off", on ? "The hood is on your desk." : "The plain mark is back.", "ok");
       },
       flash: () => {
-        if (!canFlash(ledger)) {
-          store.toast("Flash", ledger.wearing ? "Already flashed today." : "Wear the pixel first.", "info");
+        if (!canFlash(ledgerRef.current)) {
+          store.toast("Flash", ledgerRef.current.wearing ? "Already flashed today." : "Wear the pixel first.", "info");
           return;
         }
-        try {
-          setLedger(flashPixel(ledger));
-          store.toast("Flashed", "25 points landed on the desk.", "ok");
-        } catch (error) {
-          store.toast("Flash", error instanceof Error ? error.message : "Flash failed", "bad");
-        }
+        const ok = commit((current) => flashPixel(current));
+        if (ok) store.toast("Flashed", "25 points landed on the desk.", "ok");
       },
       useReferral: (code: string) => {
-        const next = acceptReferral(ledger, code);
-        if (next === ledger) {
+        const current = ledgerRef.current;
+        const next = acceptReferral(current, code);
+        if (next === current) {
           store.toast("Referral", "That code is already on this account.", "info");
           return;
         }
-        setLedger(next);
-        store.toast("Referral", `${code.toUpperCase()} credited.`, "ok");
+        ledgerRef.current = next;
+        setLedger((latest) => {
+          const applied = acceptReferral(latest, code);
+          ledgerRef.current = applied;
+          return applied;
+        });
+        store.toast("Referral", `${code.trim().toUpperCase()} credited.`, "ok");
       },
     };
   }, [ledger, store]);
